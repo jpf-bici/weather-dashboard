@@ -1,6 +1,8 @@
-function fmtLocalTime(isoZ) {
+function fmtLocalTime(isoZ, timeOnly = false) {
   if (!isoZ) return "—";
   const d = new Date(isoZ);
+  if (timeOnly)
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); // e.g. "08:23"
   return d.toLocaleString();
 }
 
@@ -63,44 +65,42 @@ async function refresh() {
 
   // KPI: current
   document.getElementById("curTemp").textContent =
-    `${fmtNum(summary.current.temp_f, 2)} °F`;
+    `${fmtNum(summary.current.temp_f, 1)} °F`;
   document.getElementById("curHum").textContent =
-    `${fmtNum(summary.current.humidity_pct, 2)} %`;
+    `${fmtNum(summary.current.humidity_pct, 1)} %`;
+  const presHpa = summary.current.pressure_hpa;
+  const presInHg = presHpa * 0.02953;
   document.getElementById("curPres").textContent =
-    `${fmtNum(summary.current.pressure_hpa, 2)} hPa`;
+    `${fmtNum(presHpa, 1)} hPa / ${fmtNum(presInHg, 1)} inHg`;
 
   const curTs = fmtLocalTime(summary.current.ts_utc);
-  // Timestamp shown in the topbar `lastUpdated` element; per-KPI timestamps removed.
 
   // KPI: 24h high/low
   document.getElementById("tHigh").textContent =
     summary.temp_24h_high.temp_f === null
       ? "—"
-      : `${fmtNum(summary.temp_24h_high.temp_f, 2)} °F`;
-  document.getElementById("tHighTs").textContent = fmtLocalTime(
+      : `${fmtNum(summary.temp_24h_high.temp_f, 1)} °F`;
+  document.getElementById("tHighTs").textContent = `@ ${fmtLocalTime(
     summary.temp_24h_high.ts_utc,
-  );
+    true,
+  )}`; /* timeOnly */
 
   document.getElementById("tLow").textContent =
     summary.temp_24h_low.temp_f === null
       ? "—"
-      : `${fmtNum(summary.temp_24h_low.temp_f, 2)} °F`;
-  document.getElementById("tLowTs").textContent = fmtLocalTime(
-    summary.temp_24h_low.ts_utc,
-  );
+      : `${fmtNum(summary.temp_24h_low.temp_f, 1)} °F`;
+  document.getElementById("tLowTs").textContent =
+    `@ ${fmtLocalTime(summary.temp_24h_low.ts_utc, true)}`;
 
   // KPI: pressure delta (24h)
   const delta = summary.pressure_change_hpa;
   const direction = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
   document.getElementById("presDelta").textContent =
-    `${direction} ${fmtNum(Math.abs(delta), 2)} hPa`;
-  // document.getElementById("presDeltaSub").textContent =
-  //   `vs ${fmtLocalTime(summary.pressure_24h_reference.ts_utc)} reference`;
+    `${direction} ${fmtNum(Math.abs(delta), 1)} hPa`;
 
   document.getElementById("lastUpdated").textContent =
     `Last updated: ${fmtLocalTime(summary.current.ts_utc)}`;
 
-  // Charts — use `{x: timestamp, y: value}` points so Chart.js time scale
   const tempPoints = ts.map((p) => ({ x: p.ts_utc, y: p.temp_f }));
   const humPoints = ts.map((p) => ({ x: p.ts_utc, y: p.humidity_pct }));
   const presPoints = ts.map((p) => ({ x: p.ts_utc, y: p.pressure_hpa }));
