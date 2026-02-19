@@ -20,15 +20,14 @@ async function getJSON(url) {
 
 let tempChart, humChart, presChart;
 
-function buildLineChart(ctx, labels, data, yLabel) {
+function buildLineChart(ctx, dataPoints, yLabel) {
   return new Chart(ctx, {
     type: "line",
     data: {
-      labels,
       datasets: [
         {
           label: yLabel,
-          data,
+          data: dataPoints,
           pointRadius: 0,
           borderWidth: 2,
           tension: 0.2,
@@ -39,7 +38,14 @@ function buildLineChart(ctx, labels, data, yLabel) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { ticks: { maxTicksLimit: 10 } },
+        x: {
+          type: "time",
+          time: {
+            unit: "day",
+            displayFormats: { day: "MMM d" },
+          },
+          ticks: { maxTicksLimit: 10 },
+        },
         y: { ticks: { maxTicksLimit: 6 } },
       },
       plugins: {
@@ -96,39 +102,34 @@ async function refresh() {
   document.getElementById("lastUpdated").textContent =
     `Last updated: ${fmtLocalTime(summary.current.ts_utc)}`;
 
-  // Charts
-  const labels = ts.map((p) => new Date(p.ts_utc).toLocaleString());
-  const temp = ts.map((p) => p.temp_f);
-  const hum = ts.map((p) => p.humidity_pct);
-  const pres = ts.map((p) => p.pressure_hpa);
+  // Charts — use `{x: timestamp, y: value}` points so Chart.js time scale
+  const tempPoints = ts.map((p) => ({ x: p.ts_utc, y: p.temp_f }));
+  const humPoints = ts.map((p) => ({ x: p.ts_utc, y: p.humidity_pct }));
+  const presPoints = ts.map((p) => ({ x: p.ts_utc, y: p.pressure_hpa }));
 
   if (!tempChart) {
     tempChart = buildLineChart(
       document.getElementById("chartTemp"),
-      labels,
-      temp,
+      tempPoints,
       "Temp (°F)",
     );
     humChart = buildLineChart(
       document.getElementById("chartHum"),
-      labels,
-      hum,
+      humPoints,
       "Humidity (%)",
     );
     presChart = buildLineChart(
       document.getElementById("chartPres"),
-      labels,
-      pres,
+      presPoints,
       "Pressure (hPa)",
     );
   } else {
-    for (const [chart, data] of [
-      [tempChart, temp],
-      [humChart, hum],
-      [presChart, pres],
+    for (const [chart, dataPoints] of [
+      [tempChart, tempPoints],
+      [humChart, humPoints],
+      [presChart, presPoints],
     ]) {
-      chart.data.labels = labels;
-      chart.data.datasets[0].data = data;
+      chart.data.datasets[0].data = dataPoints;
       chart.update();
     }
   }
