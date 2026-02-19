@@ -10,7 +10,7 @@
   </head>
   <body>
     <div class="topbar">
-      <h2 style="margin: 0">Weather</h2>
+      <h2 style="margin: 0">2158 Cedar Ave Weather</h2>
       <div id="lastUpdated" class="last-updated">Loading…</div>
     </div>
 
@@ -33,9 +33,7 @@
         <div class="kpi-title">Pressure change (24h)</div>
         <div class="kpi-value" id="presDelta">—</div>
       </div>
-    </div>
 
-    <div class="grid kpis" style="margin-top: 12px">
       <div class="card">
         <div class="kpi-title">Temp high (24h)</div>
         <div class="kpi-value" id="tHigh">—</div>
@@ -46,16 +44,17 @@
         <div class="kpi-value" id="tLow">—</div>
         <div class="kpi-sub" id="tLowTs">—</div>
       </div>
-      <div class="card" style="grid-column: span 2">
-        <div class="kpi-title">Window</div>
-        <div class="kpi-value">Last 7 days</div>
-        <div class="kpi-sub">
-          Next: add a selector (24h / 7d / 30d / custom)
-        </div>
-      </div>
     </div>
 
     <div class="grid charts" style="margin-top: 16px">
+      <div class="card">
+        <div class="kpi-title">Temperature (°F) — last 24 hours</div>
+        <canvas id="chartTemp24"></canvas>
+      </div>
+      <div class="card">
+        <div class="kpi-title">Pressure (hPa) — last 24 hours</div>
+        <canvas id="chartPres24"></canvas>
+      </div>
       <div class="card">
         <div class="kpi-title">Temperature (°F) — last 7 days</div>
         <canvas id="chartTemp"></canvas>

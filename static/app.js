@@ -24,8 +24,9 @@ async function getJSON(url) {
 }
 
 let tempChart, humChart, presChart;
+let temp24Chart, pres24Chart;
 
-function buildLineChart(ctx, dataPoints, yLabel) {
+function buildLineChart(ctx, dataPoints, yLabel, timeUnit = "day") {
   return new Chart(ctx, {
     type: "line",
     data: {
@@ -46,8 +47,8 @@ function buildLineChart(ctx, dataPoints, yLabel) {
         x: {
           type: "time",
           time: {
-            unit: "day",
-            displayFormats: { day: "MMM d" },
+            unit: timeUnit,
+            displayFormats: { hour: "HH:mm", day: "MMM d" },
           },
           ticks: { maxTicksLimit: 10 },
         },
@@ -112,6 +113,34 @@ async function refresh() {
   const humPoints = ts.map((p) => ({ x: p.ts_utc, y: p.humidity_pct }));
   const presPoints = ts.map((p) => ({ x: p.ts_utc, y: p.pressure_hpa }));
 
+  // 24-hour subset (for hourly charts)
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  const ts24 = ts.filter((p) => new Date(p.ts_utc).getTime() >= cutoff);
+  const temp24Points = ts24.map((p) => ({ x: p.ts_utc, y: p.temp_f }));
+  const pres24Points = ts24.map((p) => ({ x: p.ts_utc, y: p.pressure_hpa }));
+
+  // Create/update 24h charts (hourly)
+  if (!temp24Chart) {
+    temp24Chart = buildLineChart(
+      document.getElementById("chartTemp24"),
+      temp24Points,
+      "Temp (°F)",
+      "hour",
+    );
+    pres24Chart = buildLineChart(
+      document.getElementById("chartPres24"),
+      pres24Points,
+      "Pressure (hPa)",
+      "hour",
+    );
+  } else {
+    temp24Chart.data.datasets[0].data = temp24Points;
+    temp24Chart.update();
+    pres24Chart.data.datasets[0].data = pres24Points;
+    pres24Chart.update();
+  }
+
+  // Create/update 7d charts
   if (!tempChart) {
     tempChart = buildLineChart(
       document.getElementById("chartTemp"),

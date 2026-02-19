@@ -12,7 +12,8 @@ body {
   gap: 12px;
 }
 .kpis {
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  /* changed from 4 to 3 */
 }
 .card {
   border: 1px solid #ddd;
