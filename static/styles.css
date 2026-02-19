@@ -60,3 +60,23 @@ canvas {
     grid-template-columns: 1fr;
   }
 }
+
+/* Last-updated pill */
+.last-updated {
+  display: inline-block;
+  background: #f3f4f6;
+  color: #0f172a;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 400;
+  font-size: 16px;
+}
+.last-updated::before {
+  content: "⏱\00a0";
+}
+.last-updated {
+  background: #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #333;
+}

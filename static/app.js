@@ -70,9 +70,7 @@ async function refresh() {
     `${fmtNum(summary.current.pressure_hpa, 2)} hPa`;
 
   const curTs = fmtLocalTime(summary.current.ts_utc);
-  document.getElementById("curTempTs").textContent = curTs;
-  document.getElementById("curHumTs").textContent = curTs;
-  document.getElementById("curPresTs").textContent = curTs;
+  // Timestamp shown in the topbar `lastUpdated` element; per-KPI timestamps removed.
 
   // KPI: 24h high/low
   document.getElementById("tHigh").textContent =
@@ -96,8 +94,8 @@ async function refresh() {
   const direction = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
   document.getElementById("presDelta").textContent =
     `${direction} ${fmtNum(Math.abs(delta), 2)} hPa`;
-  document.getElementById("presDeltaSub").textContent =
-    `vs ${fmtLocalTime(summary.pressure_24h_reference.ts_utc)} reference`;
+  // document.getElementById("presDeltaSub").textContent =
+  //   `vs ${fmtLocalTime(summary.pressure_24h_reference.ts_utc)} reference`;
 
   document.getElementById("lastUpdated").textContent =
     `Last updated: ${fmtLocalTime(summary.current.ts_utc)}`;
