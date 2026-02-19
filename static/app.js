@@ -11,6 +11,9 @@ function fmtNum(x, digits = 2) {
   return Number(x).toFixed(digits);
 }
 
+// Conversion factor: 1 hPa = 0.02953 inHg
+const PRESSURE_HPA_TO_INHG = 0.02953;
+
 async function getJSON(url) {
   const r = await fetch(url);
   if (!r.ok) {
@@ -69,7 +72,7 @@ async function refresh() {
   document.getElementById("curHum").textContent =
     `${fmtNum(summary.current.humidity_pct, 1)} %`;
   const presHpa = summary.current.pressure_hpa;
-  const presInHg = presHpa * 0.02953;
+  const presInHg = presHpa * PRESSURE_HPA_TO_INHG;
   document.getElementById("curPres").textContent =
     `${fmtNum(presHpa, 1)} hPa / ${fmtNum(presInHg, 1)} inHg`;
 
@@ -94,9 +97,13 @@ async function refresh() {
 
   // KPI: pressure delta (24h)
   const delta = summary.pressure_change_hpa;
+  const deltaInHg = delta * PRESSURE_HPA_TO_INHG;
   const direction = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
   document.getElementById("presDelta").textContent =
-    `${direction} ${fmtNum(Math.abs(delta), 1)} hPa`;
+    `${direction} ${fmtNum(Math.abs(delta), 1)} hPa / ${fmtNum(
+      Math.abs(deltaInHg),
+      1,
+    )} inHg`;
 
   document.getElementById("lastUpdated").textContent =
     `Last updated: ${fmtLocalTime(summary.current.ts_utc)}`;
